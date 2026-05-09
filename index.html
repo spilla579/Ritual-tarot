@@ -1,15 +1,15 @@
-
+```html
 <!DOCTYPE html>
 <html lang="vi">
 
 <head>
 
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <title>Ritual Tarot</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.10.0/dist/ethers.umd.min.js"></script>
 
@@ -24,26 +24,51 @@
 body{
 
   background:
-  radial-gradient(circle at top,#2a1846,#120b1f 70%);
+  radial-gradient(circle at top,
+  rgba(88,28,135,.45),
+  #050505 40%);
+
+  background-color:#050505;
+
+  color:white;
 
   min-height:100vh;
 
   font-family:'Inter',sans-serif;
 
-  color:white;
-
   overflow-x:hidden;
+}
+
+body::before{
+
+  content:'';
+
+  position:fixed;
+
+  inset:0;
+
+  background:
+  url('https://www.transparenttextures.com/patterns/stardust.png');
+
+  opacity:.15;
+
+  pointer-events:none;
 }
 
 .wrapper{
 
-  max-width:1200px;
+  max-width:1300px;
 
   margin:auto;
 
-  padding:30px 20px 100px;
+  padding:30px 24px 100px;
 
+  position:relative;
+
+  z-index:2;
 }
+
+/* TOPBAR */
 
 .topbar{
 
@@ -53,7 +78,7 @@ body{
 
   align-items:center;
 
-  margin-bottom:50px;
+  margin-bottom:80px;
 
   flex-wrap:wrap;
 
@@ -66,47 +91,44 @@ body{
 
   align-items:center;
 
-  gap:16px;
+  gap:18px;
 }
 
-.logo-icon{
+.logo-img{
 
-  width:58px;
+  width:64px;
 
-  height:58px;
+  height:64px;
 
-  border-radius:18px;
+  object-fit:contain;
 
-  background:linear-gradient(135deg,#8b5cf6,#d946ef);
-
-  display:flex;
-
-  justify-content:center;
-
-  align-items:center;
-
-  font-size:28px;
-
-  box-shadow:0 0 40px rgba(168,85,247,.45);
+  filter:
+  drop-shadow(0 0 20px rgba(255,255,255,.2));
 }
 
 .logo-title{
 
   font-family:'Cinzel',serif;
 
-  font-size:24px;
+  font-size:34px;
+
+  letter-spacing:1px;
 
   font-weight:700;
 }
 
 .logo-sub{
 
-  opacity:.6;
+  color:#c084fc;
+
+  letter-spacing:4px;
 
   font-size:12px;
 
-  letter-spacing:2px;
+  margin-top:6px;
 }
+
+/* WALLET */
 
 .wallet-box{
 
@@ -114,17 +136,22 @@ body{
 
   align-items:center;
 
-  gap:14px;
+  gap:16px;
 
-  background:rgba(255,255,255,.05);
+  background:
+  rgba(255,255,255,.04);
 
-  border:1px solid rgba(255,255,255,.08);
+  border:
+  1px solid rgba(255,255,255,.08);
 
-  border-radius:20px;
+  border-radius:22px;
 
   padding:12px 16px;
 
-  backdrop-filter:blur(12px);
+  backdrop-filter:blur(16px);
+
+  box-shadow:
+  0 0 40px rgba(168,85,247,.12);
 }
 
 .wallet-dot{
@@ -137,57 +164,60 @@ body{
 
   background:#00ff99;
 
-  box-shadow:0 0 14px #00ff99;
+  box-shadow:
+  0 0 12px #00ff99;
 }
 
 .wallet-address{
 
   font-size:14px;
 
-  opacity:.8;
+  opacity:.85;
 }
 
 .connect-btn{
 
   border:none;
 
-  background:linear-gradient(135deg,#9333ea,#d946ef);
+  background:
+  linear-gradient(
+  135deg,
+  #7e22ce,
+  #c026d3);
 
   color:white;
 
-  padding:12px 18px;
+  padding:14px 22px;
 
-  border-radius:14px;
-
-  cursor:pointer;
+  border-radius:16px;
 
   font-weight:600;
 
-  transition:.25s;
+  cursor:pointer;
+
+  transition:.3s;
+
+  box-shadow:
+  0 0 20px rgba(168,85,247,.3);
 }
 
 .connect-btn:hover{
 
   transform:translateY(-2px);
+
+  box-shadow:
+  0 0 30px rgba(168,85,247,.45);
 }
+
+/* HERO */
 
 .hero{
 
-  position:relative;
-
-  overflow:hidden;
-
-  background:rgba(255,255,255,.04);
-
-  border:1px solid rgba(255,255,255,.08);
-
-  border-radius:36px;
-
-  padding:80px 30px;
-
   text-align:center;
 
-  backdrop-filter:blur(14px);
+  position:relative;
+
+  margin-bottom:70px;
 }
 
 .hero::before{
@@ -196,18 +226,22 @@ body{
 
   position:absolute;
 
-  width:600px;
+  width:900px;
 
-  height:600px;
+  height:900px;
+
+  left:50%;
+
+  top:-280px;
+
+  transform:translateX(-50%);
 
   background:
   radial-gradient(circle,
-  rgba(168,85,247,.22),
+  rgba(168,85,247,.16),
   transparent 70%);
 
-  top:-250px;
-
-  right:-150px;
+  pointer-events:none;
 }
 
 .hero-badge{
@@ -222,11 +256,15 @@ body{
 
   border-radius:999px;
 
-  background:rgba(168,85,247,.12);
+  border:
+  1px solid rgba(168,85,247,.35);
 
-  border:1px solid rgba(168,85,247,.25);
+  background:
+  rgba(168,85,247,.1);
 
-  margin-bottom:26px;
+  margin-bottom:30px;
+
+  color:#d8b4fe;
 
   font-size:13px;
 }
@@ -235,17 +273,20 @@ body{
 
   font-family:'Cinzel',serif;
 
-  font-size:72px;
+  font-size:92px;
 
-  line-height:1.1;
+  line-height:1;
 
-  margin-bottom:24px;
+  margin-bottom:28px;
 }
 
 .hero-title span{
 
   background:
-  linear-gradient(135deg,#c084fc,#ffffff);
+  linear-gradient(
+  135deg,
+  #e9d5ff,
+  #a855f7);
 
   -webkit-background-clip:text;
 
@@ -260,56 +301,77 @@ body{
 
   opacity:.72;
 
-  line-height:1.9;
+  font-size:22px;
 
-  font-size:20px;
+  line-height:1.9;
 }
 
 .hero-btn{
 
-  margin-top:36px;
+  margin-top:40px;
 
   border:none;
 
   background:
-  linear-gradient(135deg,#9333ea,#d946ef);
+  linear-gradient(
+  135deg,
+  #581c87,
+  #a855f7);
 
   color:white;
 
-  padding:18px 30px;
+  padding:18px 34px;
 
   border-radius:18px;
 
+  font-size:17px;
+
   cursor:pointer;
 
-  font-size:16px;
+  transition:.3s;
 
-  font-weight:700;
-
-  transition:.25s;
+  box-shadow:
+  0 0 30px rgba(168,85,247,.3);
 }
 
 .hero-btn:hover{
 
-  transform:translateY(-3px);
+  transform:translateY(-4px);
+
+  box-shadow:
+  0 0 40px rgba(168,85,247,.45);
 }
 
-.cards-area{
+/* CARD AREA */
 
-  margin-top:70px;
+.main-grid{
 
-  display:none;
+  display:grid;
+
+  grid-template-columns:
+  1fr 1fr;
+
+  gap:40px;
+
+  align-items:center;
+
+  margin-top:80px;
+}
+
+.tarot-area{
+
+  display:flex;
 
   justify-content:center;
 }
 
 .tarot-card{
 
-  width:240px;
+  width:280px;
 
-  height:390px;
+  height:470px;
 
-  perspective:1200px;
+  perspective:1400px;
 
   cursor:pointer;
 }
@@ -343,14 +405,20 @@ body{
   border-radius:28px;
 
   backface-visibility:hidden;
+
+  overflow:hidden;
 }
 
 .card-back{
 
   background:
-  linear-gradient(145deg,#2e1950,#1b102d);
+  linear-gradient(
+  145deg,
+  #12071d,
+  #050505);
 
-  border:2px solid rgba(201,168,76,.45);
+  border:
+  2px solid rgba(212,175,55,.45);
 
   display:flex;
 
@@ -358,40 +426,70 @@ body{
 
   align-items:center;
 
-  font-size:90px;
+  position:relative;
 
-  box-shadow:0 0 40px rgba(168,85,247,.25);
+  box-shadow:
+  0 0 40px rgba(168,85,247,.25);
+}
+
+.card-back::before{
+
+  content:'';
+
+  position:absolute;
+
+  inset:14px;
+
+  border:
+  1px solid rgba(212,175,55,.35);
+
+  border-radius:20px;
+}
+
+.card-logo{
+
+  width:130px;
+
+  opacity:.92;
+
+  filter:
+  drop-shadow(0 0 16px rgba(255,255,255,.25));
 }
 
 .card-front{
 
-  background:#f7f1e1;
+  background:
+  linear-gradient(
+  145deg,
+  #f5f0df,
+  #e7dcc1);
 
   color:black;
 
   transform:rotateY(180deg);
 
-  padding:24px;
+  padding:26px;
 
   text-align:center;
 
-  border:2px solid #c9a84c;
+  border:
+  2px solid #d4af37;
 }
 
 .card-symbol{
 
-  font-size:80px;
+  font-size:90px;
 
   margin-top:30px;
 }
 
 .card-name{
 
-  margin-top:26px;
-
-  font-size:28px;
-
   font-family:'Cinzel',serif;
+
+  font-size:34px;
+
+  margin-top:24px;
 
   font-weight:700;
 }
@@ -405,79 +503,72 @@ body{
   font-size:18px;
 }
 
-.reading{
+/* READING */
 
-  margin-top:50px;
+.reading-box{
 
-  display:none;
+  background:
+  rgba(255,255,255,.03);
 
-  background:rgba(255,255,255,.04);
-
-  border:1px solid rgba(255,255,255,.08);
+  border:
+  1px solid rgba(255,255,255,.08);
 
   border-radius:28px;
 
-  padding:36px;
+  padding:40px;
+
+  backdrop-filter:blur(16px);
+
+  display:none;
 }
 
-.reading.visible{
+.reading-box.visible{
 
   display:block;
 }
 
 .reading-title{
 
-  text-align:center;
+  font-family:'Cinzel',serif;
 
   font-size:32px;
 
-  font-family:'Cinzel',serif;
-
-  margin-bottom:26px;
+  margin-bottom:30px;
 
   color:#d8b4fe;
 }
 
 .reading-body{
 
-  text-align:center;
-
   line-height:2;
 
   font-size:20px;
-}
 
-.tx-box{
-
-  margin-top:30px;
-
-  text-align:center;
+  opacity:.9;
 }
 
 .tx-link{
 
-  color:#c084fc;
+  display:inline-block;
+
+  margin-top:24px;
+
+  color:#d8b4fe;
 
   word-break:break-all;
 }
 
-.footer{
-
-  margin-top:80px;
-
-  text-align:center;
-
-  opacity:.45;
-}
-
 .reset-btn{
 
-  margin-top:30px;
+  margin-top:34px;
 
   border:none;
 
   background:
-  linear-gradient(135deg,#9333ea,#d946ef);
+  linear-gradient(
+  135deg,
+  #581c87,
+  #a855f7);
 
   color:white;
 
@@ -488,23 +579,34 @@ body{
   cursor:pointer;
 }
 
-@media(max-width:768px){
+/* FOOTER */
+
+.footer{
+
+  margin-top:100px;
+
+  text-align:center;
+
+  opacity:.45;
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+  .main-grid{
+
+    grid-template-columns:1fr;
+  }
 
   .hero-title{
 
-    font-size:48px;
+    font-size:58px;
   }
 
   .hero-desc{
 
-    font-size:17px;
-  }
-
-  .tarot-card{
-
-    width:200px;
-
-    height:330px;
+    font-size:18px;
   }
 
 }
@@ -517,18 +619,21 @@ body{
 
 <div class="wrapper">
 
+<!-- TOPBAR -->
+
 <div class="topbar">
 
 <div class="logo-wrap">
 
-<div class="logo-icon">
-🔮
-</div>
+<img
+src="https://i.imgur.com/Jr6pf0D.png"
+class="logo-img"
+/>
 
 <div>
 
 <div class="logo-title">
-Ritual Tarot
+RITUAL TAROT
 </div>
 
 <div class="logo-sub">
@@ -543,17 +648,27 @@ ONCHAIN ORACLE
 
 <div class="wallet-dot"></div>
 
-<div class="wallet-address" id="walletDisplay">
+<div
+class="wallet-address"
+id="walletDisplay">
+
 Wallet Not Connected
+
 </div>
 
-<button class="connect-btn" id="connectBtn">
+<button
+class="connect-btn"
+id="connectBtn">
+
 Connect Wallet
+
 </button>
 
 </div>
 
 </div>
+
+<!-- HERO -->
 
 <div class="hero">
 
@@ -562,16 +677,22 @@ Connect Wallet
 </div>
 
 <div class="hero-title">
-Reveal Your <span>Tarot</span> Destiny
+
+Reveal Your
+<br>
+
+<span>Tarot Destiny</span>
+
 </div>
 
 <div class="hero-desc">
 
-Connect your wallet and uncover your mystical onchain tarot reading powered by Ritual Network.
+Connect your wallet and uncover the mystical message the universe has prepared for you.
 
 </div>
 
-<button class="hero-btn"
+<button
+class="hero-btn"
 onclick="scrollToCard()">
 
 Reveal My Card
@@ -580,39 +701,57 @@ Reveal My Card
 
 </div>
 
-<div class="cards-area" id="cardsArea">
+<!-- MAIN -->
 
-<div class="tarot-card" id="tarotCard">
+<div class="main-grid">
+
+<div class="tarot-area">
+
+<div
+class="tarot-card"
+id="tarotCard">
 
 <div class="card-inner">
 
 <div class="card-face card-back">
-🔮
-</div>
 
-<div class="card-face card-front" id="cardFront">
-
-</div>
-
-</div>
+<img
+src="https://i.imgur.com/Jr6pf0D.png"
+class="card-logo"
+/>
 
 </div>
 
+<div
+class="card-face card-front"
+id="cardFront">
+
 </div>
 
-<div class="reading" id="readingSection">
+</div>
+
+</div>
+
+</div>
+
+<div
+class="reading-box"
+id="readingBox">
 
 <div class="reading-title">
 Your Oracle Reading
 </div>
 
-<div class="reading-body" id="readingBody"></div>
+<div
+class="reading-body"
+id="readingBody">
 
-<div class="tx-box" id="txBox"></div>
+</div>
 
-<div style="text-align:center">
+<div id="txBox"></div>
 
-<button class="reset-btn"
+<button
+class="reset-btn"
 onclick="location.reload()">
 
 Draw Again
@@ -633,19 +772,7 @@ Powered by Ritual Network · MetaMask · Ethers.js
 
 <script>
 
-const CARDS = [
-
-{
-name:"The Fool",
-symbol:"🌟",
-meaning:"Một khởi đầu mới đang mở ra trước mắt bạn."
-},
-
-{
-name:"The Magician",
-symbol:"🪄",
-meaning:"Bạn đã có đủ sức mạnh để tạo nên điều mình mong muốn."
-},
+const CARDS=[
 
 {
 name:"The Star",
@@ -656,25 +783,25 @@ meaning:"Hy vọng và chữa lành đang dẫn lối cho bạn."
 {
 name:"The Sun",
 symbol:"☀️",
-meaning:"Niềm vui và thành công đang soi sáng con đường phía trước."
+meaning:"Ánh sáng và thành công đang soi đường phía trước."
 },
 
 {
-name:"Wheel of Fortune",
-symbol:"☸️",
-meaning:"Vận may đang dịch chuyển theo hướng có lợi cho bạn."
+name:"The Fool",
+symbol:"🌟",
+meaning:"Một hành trình mới đang bắt đầu."
 },
 
 {
 name:"Death",
 symbol:"🌑",
-meaning:"Sự chuyển hóa đang mở ra một chương hoàn toàn mới."
+meaning:"Sự chuyển hóa mạnh mẽ đang đến."
 },
 
 {
 name:"The World",
 symbol:"🌍",
-meaning:"Một chu kỳ lớn đang hoàn thành với thành tựu rực rỡ."
+meaning:"Bạn sắp hoàn thành một chu kỳ lớn."
 }
 
 ];
@@ -692,7 +819,7 @@ let txHash="";
 function scrollToCard(){
 
 document
-.getElementById("cardsArea")
+.getElementById("tarotCard")
 .scrollIntoView({
 behavior:"smooth"
 });
@@ -705,7 +832,7 @@ try{
 
 if(!window.ethereum){
 
-alert("Vui lòng cài MetaMask");
+alert("Please install MetaMask");
 
 return;
 
@@ -736,10 +863,6 @@ walletAddress.slice(0,6)
 walletAddress.slice(-4);
 
 document
-.getElementById("cardsArea")
-.style.display="flex";
-
-document
 .getElementById("connectBtn")
 .innerText="Connected";
 
@@ -755,8 +878,6 @@ renderCard();
 }catch(err){
 
 console.error(err);
-
-alert("Không thể kết nối ví");
 
 }
 
@@ -795,6 +916,14 @@ selectedCard.meaning
 
 async function revealCard(){
 
+if(!selectedCard){
+
+alert("Connect wallet first");
+
+return;
+
+}
+
 const card=
 document.getElementById("tarotCard");
 
@@ -816,14 +945,6 @@ async function sendTransaction(){
 
 try{
 
-if(!signer){
-
-txHash="Wallet not connected";
-
-return;
-
-}
-
 const tx=
 await signer.sendTransaction({
 
@@ -842,23 +963,22 @@ await tx.wait();
 console.error(err);
 
 txHash="Transaction rejected";
-
 }
 
 }
 
 function showReading(){
 
-const section=
-document.getElementById("readingSection");
+const box=
+document.getElementById("readingBox");
 
 const body=
 document.getElementById("readingBody");
 
-const txBox=
+const tx=
 document.getElementById("txBox");
 
-section.classList.add("visible");
+box.classList.add("visible");
 
 body.innerHTML=
 
@@ -894,18 +1014,9 @@ selectedCard.meaning
 
 +
 
-"Ritual đã ghi lại vận mệnh oracle của bạn.";
+"The Ritual Oracle has sealed your destiny.";
 
-if(
-txHash &&
-txHash.startsWith("0x")
-){
-
-txBox.innerHTML=
-
-"<div style='margin-bottom:12px'>Transaction:</div>"
-
-+
+tx.innerHTML=
 
 "<a class='tx-link' target='_blank' href='https://sepolia.etherscan.io/tx/"
 
@@ -924,22 +1035,6 @@ txHash
 +
 
 "</a>";
-
-}else{
-
-txBox.innerHTML=
-
-"<div class='tx-link'>"
-
-+
-
-txHash
-
-+
-
-"</div>";
-
-}
 
 }
 
