@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ritual Tarot — On-Chain Oracle Reading</title>
+  <script src="https://cdn.ethers.io/lib/ethers-5.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Space+Mono&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -698,58 +699,403 @@ const ORACLE_READINGS = {
 async function getReading() {
   if (!walletConnected || !selectedCard) return;
 
-  document.getElementById("readingSection").classList.add("visible");
-  document.getElementById("resultSymbol").textContent = selectedCard.symbol;
-  document.getElementById("resultName").textContent = selectedCard.name.toUpperCase();
-  document.getElementById("readingLoadingContainer").style.display = "block";
-  document.getElementById("readingContent").style.display = "none";
-  document.getElementById("readingActionsContainer").style.display = "none";
+  // Create modal overlay for card opening animation
+  const modal = document.createElement('div');
+  modal.id = 'cardOpeningModal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(2px);
+  `;
 
-  // Scroll to reading section
-  document.getElementById("readingSection").scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const cardContainer = document.createElement('div');
+  cardContainer.style.cssText = `
+    perspective: 1000px;
+    width: 300px;
+    height: 450px;
+  `;
 
-  // Simulate oracle channeling with delay
+  const cardElement = document.createElement('div');
+  cardElement.style.cssText = `
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transform-style: preserve-3d;
+    transform: rotateY(90deg);
+    cursor: pointer;
+  `;
+
+  // Front of card (closed)
+  const cardBack = document.createElement('div');
+  cardBack.style.cssText = `
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+    border: 3px solid #d4af37;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    backface-visibility: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  `;
+  cardBack.textContent = '✦';
+
+  // Back of card (open)
+  const cardFront = document.createElement('div');
+  cardFront.style.cssText = `
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+    border: 3px solid #d4af37;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    text-align: center;
+  `;
+
+  const symbol = document.createElement('div');
+  symbol.style.cssText = 'font-size: 80px; margin-bottom: 16px;';
+  symbol.textContent = selectedCard.symbol;
+
+  const name = document.createElement('div');
+  name.style.cssText = 'font-size: 20px; font-weight: bold; color: #d4af37; margin-bottom: 12px;';
+  name.textContent = selectedCard.name;
+
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-size: 12px; color: #999; font-style: italic; margin-top: 12px;';
+  
+  // Get random hint
+  const hints = [
+    "Trust the universe's timing",
+    "Your intuition is your greatest guide",
+    "Embrace the transformation ahead",
+    "What you seek is seeking you",
+    "The answer lies within",
+    "Divine timing is unfolding",
+    "Your truth shall set you free",
+    "Everything happens for a reason",
+    "Listen to the voice of wisdom",
+    "The path is always illuminated"
+  ];
+  hint.textContent = hints[Math.floor(Math.random() * hints.length)];
+
+  cardFront.appendChild(symbol);
+  cardFront.appendChild(name);
+  cardFront.appendChild(hint);
+
+  cardElement.appendChild(cardBack);
+  cardElement.appendChild(cardFront);
+  cardContainer.appendChild(cardElement);
+  modal.appendChild(cardContainer);
+  document.body.appendChild(modal);
+
+  // Close modal on click
+  function closeCardModal() {
+    modal.style.opacity = '0';
+    modal.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => {
+      modal.remove();
+      startReading();
+    }, 300);
+  }
+
+  modal.addEventListener('click', closeCardModal);
+  cardElement.addEventListener('click', closeCardModal);
+
+  // Animate card opening
   setTimeout(() => {
-    const reading = ORACLE_READINGS[selectedCard.name] || "The oracle speaks in whispers of light and wisdom...";
-    
-    document.getElementById("readingLoadingContainer").style.display = "none";
-    document.getElementById("readingContent").textContent = reading;
-    document.getElementById("readingContent").style.display = "block";
-    document.getElementById("readingActionsContainer").style.display = "flex";
-  }, 2000); // 2 second delay for mystical effect
+    cardElement.style.transform = 'rotateY(0deg)';
+  }, 100);
+
+  // Auto-close after 4 seconds
+  setTimeout(closeCardModal, 4000);
+
+  function startReading() {
+    document.getElementById("readingSection").classList.add("visible");
+    document.getElementById("resultSymbol").textContent = selectedCard.symbol;
+    document.getElementById("resultName").textContent = selectedCard.name.toUpperCase();
+    document.getElementById("readingLoadingContainer").style.display = "block";
+    document.getElementById("readingContent").style.display = "none";
+    document.getElementById("readingActionsContainer").style.display = "none";
+
+    // Scroll to reading section
+    document.getElementById("readingSection").scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Simulate oracle channeling with delay
+    setTimeout(() => {
+      const reading = ORACLE_READINGS[selectedCard.name] || "The oracle speaks in whispers of light and wisdom...";
+      
+      document.getElementById("readingLoadingContainer").style.display = "none";
+      document.getElementById("readingContent").textContent = reading;
+      document.getElementById("readingContent").style.display = "block";
+      document.getElementById("readingActionsContainer").style.display = "flex";
+    }, 2000); // 2 second delay for mystical effect
+  }
 }
 
-function mintReading() {
+async function mintReading() {
   if (!walletConnected) {
     alert("Please connect your wallet first");
     return;
   }
   
+  if (!window.ethereum) {
+    alert("MetaMask not found");
+    return;
+  }
+
   const reading = document.getElementById("readingContent").textContent;
+  const cardIndex = MAJOR_ARCANA.indexOf(selectedCard);
+  const cardName = selectedCard.name;
   
-  alert(`✦ Minting "${selectedCard.name}" reading as NFT to ${walletAddress}...\n\nThis would mint the reading to the Ritual blockchain.\n\nFor production, integrate with contract: 0x...`);
-  
-  // In production, this would:
-  // 1. Call smart contract mintReading() function
-  // 2. Send transaction with reading data
-  // 3. Wait for confirmation
-  // 4. Show NFT link
+  try {
+    // Show loading
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = "Minting...";
+
+    // Ritual Testnet Configuration
+    const RITUAL_CHAIN_ID = 1002;
+    const RITUAL_RPC = "https://testnet.ritualnet.io/rpc";
+    const contractAddress = "0x..."; // REPLACE WITH YOUR CONTRACT ADDRESS
+    
+    // Smart Contract ABI for mintReading function
+    const contractABI = [
+      {
+        "inputs": [
+          { "internalType": "uint8", "name": "cardIndex", "type": "uint8" },
+          { "internalType": "string", "name": "cardName", "type": "string" },
+          { "internalType": "string", "name": "readingText", "type": "string" },
+          { "internalType": "string", "name": "imageURI", "type": "string" }
+        ],
+        "name": "mintReading",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      }
+    ];
+
+    // Check if on correct network
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    const currentChainId = parseInt(chainId, 16);
+    
+    if (currentChainId !== RITUAL_CHAIN_ID) {
+      // Try to switch network
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x' + RITUAL_CHAIN_ID.toString(16) }],
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          // Network not added, try to add it
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0x' + RITUAL_CHAIN_ID.toString(16),
+              chainName: 'Ritual Testnet',
+              rpcUrls: [RITUAL_RPC],
+              blockExplorerUrls: ['https://testnet-scan.ritualnet.io'],
+              nativeCurrency: {
+                name: 'RIT',
+                symbol: 'RIT',
+                decimals: 18,
+              },
+            }],
+          });
+        } else {
+          throw switchError;
+        }
+      }
+    }
+
+    // Generate card image URI
+    const imageURI = generateCardImageForMint();
+
+    // Create contract instance
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+    // Call mintReading function with all parameters
+    const tx = await contract.mintReading(cardIndex, cardName, reading, imageURI);
+    
+    // Show transaction pending message
+    alert(`Transaction submitted!\n\nHash: ${tx.hash}\n\nWaiting for confirmation...`);
+    
+    // Wait for transaction confirmation
+    const receipt = await tx.wait();
+    
+    if (receipt.status === 1) {
+      // Success
+      const txLink = `https://testnet-scan.ritualnet.io/tx/${tx.hash}`;
+      alert(`✓ NFT Minted Successfully!\n\nTransaction: ${tx.hash}\n\nCard: ${cardName}\n\nView on Ritual Scan:\n${txLink}`);
+    } else {
+      alert(`⚠️ Transaction failed. Hash: ${tx.hash}`);
+    }
+    
+    btn.disabled = false;
+    btn.textContent = "Mint NFT";
+    
+  } catch (error) {
+    console.error("Mint error:", error);
+    
+    let errorMessage = error.message;
+    
+    if (error.code === 'UNPREDICTABLE_GAS_LIMIT') {
+      errorMessage = "Contract may not be deployed or function parameters are incorrect.";
+    } else if (error.message.includes("revert")) {
+      errorMessage = "Transaction reverted. You may have already minted a reading.";
+    } else if (error.code === 4001) {
+      errorMessage = "Transaction rejected by user.";
+    } else if (error.message.includes("0x...")) {
+      errorMessage = "Contract address not set. Please update CONTRACT_ADDRESS in the code.";
+    }
+    
+    alert(`❌ Mint Failed\n\n${errorMessage}\n\nTips:\n1. Ensure you're on Ritual Testnet (Chain ID 1002)\n2. Contract address must be set\n3. You can only mint once per wallet`);
+    
+    const btn = event.target;
+    btn.disabled = false;
+    btn.textContent = "Mint NFT";
+  }
+}
+
+function generateCardImageForMint() {
+  // Generate a simple IPFS URI based on card index
+  // In production, upload actual image to IPFS and return URL
+  const cardIndex = MAJOR_ARCANA.indexOf(selectedCard);
+  return `ipfs://QmRitualTarot${cardIndex}`; // Placeholder
 }
 
 function shareReading() {
   const reading = document.getElementById("readingContent").textContent;
-  const text = `I just received an oracle reading from Ritual Tarot:\n\n"${selectedCard.name}"\n\n"${reading}"\n\n✦ Powered by Ritual Network AI Oracle`;
+  const cardSymbol = selectedCard.symbol;
+  const cardName = selectedCard.name;
   
-  if (navigator.share) {
-    navigator.share({ 
-      title: "Ritual Tarot Oracle", 
-      text: text
+  // Create share text
+  const shareText = `I just received an oracle reading from Ritual Tarot ✦\n\n${cardName} ${cardSymbol}\n\n"${reading}"\n\n✦ Powered by Ritual Network AI Oracle\n\nhttps://ritual-tarot.vercel.app`;
+  
+  // Generate card image as data URL
+  const cardImageDataUrl = generateCardImage();
+  
+  // Try to convert to blob and prepare for sharing
+  fetch(cardImageDataUrl)
+    .then(res => res.blob())
+    .then(blob => {
+      // Create a temporary link for download if needed
+      const url = URL.createObjectURL(blob);
+      
+      // For X (Twitter) sharing, we need to encode text and use the standard share intent
+      // Note: Direct image attachment requires Twitter API v2 or third-party service
+      const encodedText = encodeURIComponent(shareText);
+      const twitterUrl = `https://x.com/intent/tweet?text=${encodedText}`;
+      
+      // Store image in session for reference
+      window.lastCardImage = cardImageDataUrl;
+      window.lastCardImageBlob = blob;
+      
+      // Open X share dialog
+      const xWindow = window.open(twitterUrl, 'x-share', 'width=550,height=420');
+      
+      // Copy image to clipboard so user can paste it
+      if (navigator.clipboard && navigator.clipboard.write) {
+        const item = new ClipboardItem({ 'image/png': blob });
+        navigator.clipboard.write([item])
+          .then(() => {
+            alert('✦ X Share opened!\n\nCard image has been copied to your clipboard.\n\nYou can paste it directly into the X post!');
+          })
+          .catch(err => {
+            console.log('Clipboard write failed, but share dialog opened:', err);
+            alert('✦ X Share opened!\n\nYou can also manually upload the card image in the post.');
+          });
+      } else {
+        alert('✦ X Share opened!\n\nTo include the card image:\n1. Right-click the image below\n2. Save it\n3. Upload it to your X post\n\nOr click the card icon in X to attach an image');
+        
+        // Show downloadable image
+        const imgElement = document.createElement('img');
+        imgElement.src = cardImageDataUrl;
+        imgElement.style.maxWidth = '200px';
+        imgElement.style.marginTop = '20px';
+        imgElement.style.border = '1px solid #d4af37';
+        imgElement.style.cursor = 'pointer';
+        imgElement.title = 'Right-click to save image';
+        
+        const resultDiv = document.getElementById("readingContent");
+        if (resultDiv.parentElement.querySelector('.card-image-share')) {
+          resultDiv.parentElement.querySelector('.card-image-share').remove();
+        }
+        
+        const container = document.createElement('div');
+        container.className = 'card-image-share';
+        container.style.textAlign = 'center';
+        container.style.marginTop = '20px';
+        container.appendChild(imgElement);
+        resultDiv.parentElement.appendChild(container);
+      }
+    })
+    .catch(err => {
+      console.error('Failed to process image:', err);
+      // Fallback to simple text share
+      const encodedText = encodeURIComponent(shareText);
+      const twitterUrl = `https://x.com/intent/tweet?text=${encodedText}`;
+      window.open(twitterUrl, 'x-share', 'width=550,height=420');
+      alert('✦ X Share opened!\n\nNote: Image processing failed, but you can add the card image manually in the tweet.');
     });
-  } else {
-    // Fallback: copy to clipboard
-    navigator.clipboard.writeText(text);
-    alert("Reading copied to clipboard!");
-  }
+}
+
+// Function to generate card image
+function generateCardImage() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 400;
+  canvas.height = 600;
+  const ctx = canvas.getContext('2d');
+  
+  // Background
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Border
+  ctx.strokeStyle = '#d4af37';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+  
+  // Card symbol
+  ctx.font = 'bold 120px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#d4af37';
+  ctx.fillText(selectedCard.symbol, canvas.width / 2, 120);
+  
+  // Card name
+  ctx.font = 'bold 28px Arial';
+  ctx.fillStyle = '#f5f5f5';
+  ctx.fillText(selectedCard.name, canvas.width / 2, 200);
+  
+  // Ritual branding
+  ctx.font = '16px Arial';
+  ctx.fillStyle = '#999';
+  ctx.fillText('✦ Ritual Tarot Oracle ✦', canvas.width / 2, canvas.height - 30);
+  
+  return canvas.toDataURL('image/png');
 }
 
 // Initialize on load
