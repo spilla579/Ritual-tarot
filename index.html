@@ -1,75 +1,553 @@
+```html
 <!DOCTYPE html>
-  } catch(err) {
+<html lang="vi">
 
-    console.error(err);
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    txHash = "Demo Mode — No transaction sent";
+  <title>Ritual Tarot</title>
 
-  }
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
 
-}
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.10.0/dist/ethers.umd.min.js"></script>
 
-function showReading() {
+  <style>
 
-  const section = document.getElementById("readingSection");
+    :root {
+      --gold: #c9a84c;
+      --bg: #120b1f;
+      --card: #211233;
+      --light: #f6f0df;
+    }
 
-  const body = document.getElementById("readingBody");
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  const txBox = document.getElementById("txBox");
+    body {
+      background: radial-gradient(circle at top, #2a1846, #120b1f 70%);
+      color: var(--light);
+      min-height: 100vh;
+      font-family: 'EB Garamond', serif;
+      overflow-x: hidden;
+    }
 
-  section.classList.add("visible");
+    .wrapper {
+      max-width: 1000px;
+      margin: auto;
+      padding: 40px 20px 100px;
+    }
 
-  body.innerHTML = `
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
 
-    ${selectedCard.symbol}
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 48px;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
 
-    <br><br>
+    .header p {
+      opacity: 0.7;
+      letter-spacing: 2px;
+    }
 
-    <strong>${selectedCard.name}</strong>
+    .wallet-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
 
-    <br><br>
+    .connect-btn,
+    .reset-btn {
 
-    ${selectedCard.meaning}
+      padding: 14px 28px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #c9a84c, #f1d47b);
+      color: black;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 16px;
 
-    <br><br>
+    }
 
-    Ritual has recorded your oracle destiny.
+    .connect-btn:hover,
+    .reset-btn:hover {
 
-  `;
+      transform: translateY(-2px);
 
-  txBox.innerHTML = `
+    }
 
-    <div style="margin-top:20px;opacity:0.7">
-      Transaction:
+    .wallet-address {
+
+      margin-top: 12px;
+      opacity: 0.8;
+      font-size: 14px;
+      word-break: break-all;
+
+    }
+
+    .cards-area {
+
+      display: none;
+      justify-content: center;
+      margin-top: 40px;
+
+    }
+
+    .tarot-card {
+
+      width: 220px;
+      height: 360px;
+      perspective: 1200px;
+      cursor: pointer;
+
+    }
+
+    .card-inner {
+
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+
+    }
+
+    .tarot-card.flipped .card-inner {
+
+      transform: rotateY(180deg);
+
+    }
+
+    .card-face {
+
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      backface-visibility: hidden;
+
+    }
+
+    .card-back {
+
+      background: linear-gradient(145deg, #2e1950, #1b102d);
+      border: 2px solid rgba(201,168,76,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 80px;
+
+    }
+
+    .card-front {
+
+      background: #f6f0df;
+      color: black;
+      transform: rotateY(180deg);
+      padding: 20px;
+      text-align: center;
+      border: 2px solid var(--gold);
+
+    }
+
+    .card-symbol {
+
+      font-size: 72px;
+      margin-top: 30px;
+
+    }
+
+    .card-name {
+
+      margin-top: 24px;
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      font-weight: bold;
+
+    }
+
+    .card-meaning {
+
+      margin-top: 24px;
+      line-height: 1.7;
+      font-size: 18px;
+
+    }
+
+    .reading-section {
+
+      margin-top: 50px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 24px;
+      padding: 30px;
+      display: none;
+
+    }
+
+    .reading-section.visible {
+
+      display: block;
+
+    }
+
+    .reading-title {
+
+      font-family: 'Cinzel', serif;
+      font-size: 28px;
+      color: var(--gold);
+      margin-bottom: 20px;
+      text-align: center;
+
+    }
+
+    .reading-body {
+
+      line-height: 2;
+      font-size: 20px;
+      text-align: center;
+
+    }
+
+    .tx-box {
+
+      margin-top: 20px;
+      text-align: center;
+
+    }
+
+    .tx-link {
+
+      color: #f1d47b;
+      word-break: break-all;
+
+    }
+
+    .footer {
+
+      text-align: center;
+      margin-top: 80px;
+      opacity: 0.5;
+
+    }
+
+    @media(max-width: 600px) {
+
+      .header h1 {
+        font-size: 36px;
+      }
+
+      .tarot-card {
+        width: 180px;
+        height: 300px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+
+    <div class="header">
+
+      <h1>✦ Ritual Tarot ✦</h1>
+
+      <p>ONCHAIN ORACLE · WALLET DESTINY READER</p>
+
     </div>
 
-    <div class="tx-link">
-      ${txHash}
+    <div class="wallet-box">
+
+      <div>
+        Kết nối ví để khám phá lá bài định mệnh của bạn.
+      </div>
+
+      <button class="connect-btn" id="connectBtn">
+        Connect Wallet
+      </button>
+
+      <div class="wallet-address" id="walletDisplay"></div>
+
     </div>
 
-  `;
+    <div class="cards-area" id="cardsArea">
 
-}
+      <div class="tarot-card" id="tarotCard">
 
-function resetReading() {
+        <div class="card-inner">
 
-  location.reload();
+          <div class="card-face card-back">
+            🔮
+          </div>
 
-}
+          <div class="card-face card-front" id="cardFront"></div>
 
-window.addEventListener("load", () => {
+        </div>
 
-  document
-    .getElementById("connectBtn")
-    .addEventListener("click", connectWallet);
+      </div>
 
-  document
-    .getElementById("tarotCard")
-    .addEventListener("click", revealCard);
+    </div>
 
-});
+    <div class="reading-section" id="readingSection">
 
-</script>
+      <div class="reading-title">
+        Your Oracle Reading
+      </div>
+
+      <div class="reading-body" id="readingBody"></div>
+
+      <div class="tx-box" id="txBox"></div>
+
+      <div style="text-align:center">
+
+        <button class="reset-btn" onclick="resetReading()">
+          Draw Again
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="footer">
+      Powered by Ritual Network · MetaMask · Ethers.js
+    </div>
+
+  </div>
+
+  <script>
+
+    const CARDS = [
+
+      {
+        name: "The Fool",
+        symbol: "🌟",
+        meaning: "Một khởi đầu mới đang mở ra trước mắt bạn."
+      },
+
+      {
+        name: "The Magician",
+        symbol: "🪄",
+        meaning: "Bạn đã có đủ sức mạnh để tạo nên điều mình mong muốn."
+      },
+
+      {
+        name: "The Sun",
+        symbol: "☀️",
+        meaning: "Niềm vui và thành công đang soi sáng con đường phía trước."
+      },
+
+      {
+        name: "The Star",
+        symbol: "⭐",
+        meaning: "Hy vọng và chữa lành đang dẫn lối cho bạn."
+      },
+
+      {
+        name: "The World",
+        symbol: "🌍",
+        meaning: "Một chu kỳ lớn đang hoàn thành với thành tựu rực rỡ."
+      }
+
+    ];
+
+    let provider;
+    let signer;
+    let walletAddress = "";
+    let selectedCard = null;
+    let txHash = "";
+
+    async function connectWallet() {
+
+      try {
+
+        if (!window.ethereum) {
+
+          alert("Vui lòng cài MetaMask");
+
+          return;
+
+        }
+
+        provider = new ethers.BrowserProvider(window.ethereum);
+
+        await provider.send("eth_requestAccounts", []);
+
+        signer = await provider.getSigner();
+
+        walletAddress = await signer.getAddress();
+
+        document.getElementById("walletDisplay").innerText =
+          walletAddress;
+
+        document.getElementById("cardsArea").style.display =
+          "flex";
+
+        document.getElementById("connectBtn").innerText =
+          "Wallet Connected";
+
+        selectedCard =
+          CARDS[Math.floor(Math.random() * CARDS.length)];
+
+        renderCard();
+
+      } catch(err) {
+
+        console.error(err);
+
+        alert("Không thể kết nối ví");
+
+      }
+
+    }
+
+    function renderCard() {
+
+      const front =
+        document.getElementById("cardFront");
+
+      front.innerHTML =
+
+        "<div class='card-symbol'>" +
+        selectedCard.symbol +
+        "</div>" +
+
+        "<div class='card-name'>" +
+        selectedCard.name +
+        "</div>" +
+
+        "<div class='card-meaning'>" +
+        selectedCard.meaning +
+        "</div>";
+
+    }
+
+    async function revealCard() {
+
+      const card =
+        document.getElementById("tarotCard");
+
+      if (card.classList.contains("flipped")) {
+
+        return;
+
+      }
+
+      card.classList.add("flipped");
+
+      await sendTransaction();
+
+      showReading();
+
+    }
+
+    async function sendTransaction() {
+
+      try {
+
+        txHash = "Demo Mode — No transaction sent";
+
+      } catch(err) {
+
+        console.error(err);
+
+        txHash = "Transaction failed";
+
+      }
+
+    }
+
+    function showReading() {
+
+      const section =
+        document.getElementById("readingSection");
+
+      const body =
+        document.getElementById("readingBody");
+
+      const txBox =
+        document.getElementById("txBox");
+
+      section.classList.add("visible");
+
+      body.innerHTML =
+
+        "<div>" +
+
+        selectedCard.symbol +
+
+        "<br><br>" +
+
+        "<strong>" +
+
+        selectedCard.name +
+
+        "</strong>" +
+
+        "<br><br>" +
+
+        selectedCard.meaning +
+
+        "<br><br>" +
+
+        "Ritual đã ghi lại vận mệnh oracle của bạn." +
+
+        "</div>";
+
+      txBox.innerHTML =
+
+        "<div style='margin-top:20px;opacity:0.7'>" +
+
+        "Transaction:" +
+
+        "</div>" +
+
+        "<div class='tx-link'>" +
+
+        txHash +
+
+        "</div>";
+
+    }
+
+    function resetReading() {
+
+      location.reload();
+
+    }
+
+    window.addEventListener("load", () => {
+
+      document
+        .getElementById("connectBtn")
+        .addEventListener("click", connectWallet);
+
+      document
+        .getElementById("tarotCard")
+        .addEventListener("click", revealCard);
+
+    });
+
+  </script>
 
 </body>
+
 </html>
+```
