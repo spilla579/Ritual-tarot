@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+  } catch(err) {
+
+    console.error(err);
+
+    txHash = "Demo Mode — No transaction sent";
+
+  }
+
+}
+
+function showReading() {
+
+  const section = document.getElementById("readingSection");
+
+  const body = document.getElementById("readingBody");
+
+  const txBox = document.getElementById("txBox");
+
+  section.classList.add("visible");
+
+  body.innerHTML = `
+
+    ${selectedCard.symbol}
+
+    <br><br>
+
+    <strong>${selectedCard.name}</strong>
+
+    <br><br>
+
+    ${selectedCard.meaning}
+
+    <br><br>
+
+    Ritual has recorded your oracle destiny.
+
+  `;
+
+  txBox.innerHTML = `
+
+    <div style="margin-top:20px;opacity:0.7">
+      Transaction:
+    </div>
+
+    <div class="tx-link">
+      ${txHash}
+    </div>
+
+  `;
+
+}
+
+function resetReading() {
+
+  location.reload();
+
+}
+
+window.addEventListener("load", () => {
+
+  document
+    .getElementById("connectBtn")
+    .addEventListener("click", connectWallet);
+
+  document
+    .getElementById("tarotCard")
+    .addEventListener("click", revealCard);
+
+});
+
+</script>
+
+</body>
+</html>
