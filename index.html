@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ritual Tarot — On-Chain Oracle Reading</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Space+Mono&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -18,6 +21,10 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       background: var(--primary);
@@ -100,6 +107,12 @@
       transform: translateY(-1px);
     }
 
+    .wallet-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .wallet-status {
       font-family: 'Space Mono', monospace;
       font-size: 11px;
@@ -157,6 +170,7 @@
       justify-content: center;
       font-size: 48px;
       transition: transform 0.3s;
+      cursor: pointer;
     }
 
     .intro-card-sample:hover {
@@ -203,6 +217,7 @@
       transition: all 0.3s;
       position: relative;
       overflow: hidden;
+      font-family: 'Crimson Text', serif;
     }
 
     .card-btn:hover {
@@ -308,6 +323,12 @@
       grid-template-columns: 1fr 1fr;
       gap: 60px;
       align-items: center;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .reading-card-display {
@@ -360,6 +381,7 @@
       font-family: 'Playfair Display', serif;
       font-size: 28px;
       color: var(--secondary);
+      margin: 0;
     }
 
     .reading-content {
@@ -367,6 +389,7 @@
       line-height: 1.9;
       color: var(--text-light);
       font-style: italic;
+      margin: 0;
     }
 
     .reading-actions {
@@ -393,6 +416,17 @@
     .mint-btn:hover {
       background: transparent;
       color: var(--accent-violet);
+    }
+
+    .mint-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .share-btn {
+      background: transparent;
+      color: var(--accent-gold);
+      border-color: var(--accent-gold);
     }
 
     .loading {
@@ -425,6 +459,8 @@
       align-items: center;
       font-size: 12px;
       color: var(--text-light);
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
     .footer-links {
@@ -465,7 +501,10 @@
 
       .footer {
         flex-direction: column;
-        gap: 16px;
+      }
+
+      .container {
+        padding: 24px 12px;
       }
     }
   </style>
@@ -518,7 +557,7 @@
 
     <div class="reading-action">
       <button class="read-btn" id="readBtn" onclick="getReading()" disabled>
-        Receive Reading
+        Reveal My Reading
       </button>
       <span class="status-text" id="actionStatus"></span>
     </div>
@@ -534,17 +573,15 @@
     </div>
 
     <div class="reading-text">
-      <h2 class="reading-title">Your Reading</h2>
+      <h2 class="reading-title">Your Oracle Reading</h2>
       <div id="readingLoadingContainer" class="loading">
         <div class="loading-spinner"></div>
         <p>Oracle is channeling your destiny...</p>
       </div>
-      <div id="readingContent" style="display: none;">
-        <p class="reading-content" id="readingContent"></p>
-        <div class="reading-actions">
-          <button class="mint-btn" onclick="mintReading()">Mint NFT</button>
-          <button class="mint-btn" onclick="shareReading()" style="background:transparent; color:var(--accent-gold); border-color:var(--accent-gold);">Share Reading</button>
-        </div>
+      <p class="reading-content" id="readingContent" style="display: none;"></p>
+      <div class="reading-actions" id="readingActionsContainer" style="display: none;">
+        <button class="mint-btn" onclick="mintReading()">Mint NFT</button>
+        <button class="mint-btn share-btn" onclick="shareReading()">Share Reading</button>
       </div>
     </div>
   </section>
@@ -555,7 +592,7 @@
     <div class="footer-links">
       <a href="https://ritual.net" target="_blank">Ritual Network</a>
       <a href="https://docs.ritual.net" target="_blank">Docs</a>
-      <a href="#" onclick="toggleTheme()">Settings</a>
+      <a href="https://github.com" target="_blank">GitHub</a>
     </div>
   </footer>
 </div>
@@ -614,16 +651,24 @@ function selectCard(idx) {
   document.getElementById("actionStatus").textContent = `${selectedCard.name} selected`;
 }
 
-function connectWallet() {
-  // Simulate wallet connection
-  if (!walletConnected) {
-    walletAddress = "0x" + Math.random().toString(16).slice(2, 10) + "...";
-    walletConnected = true;
-    document.getElementById("walletBtn").textContent = "Connected";
-    document.getElementById("walletBtn").disabled = true;
-    document.getElementById("walletStatus").textContent = walletAddress;
-    document.getElementById("walletStatus").classList.add("wallet-connected");
-    if (selectedCard) document.getElementById("readBtn").disabled = false;
+async function connectWallet() {
+  if (window.ethereum) {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      walletAddress = accounts[0];
+      walletConnected = true;
+      
+      document.getElementById("walletBtn").textContent = "Connected ✓";
+      document.getElementById("walletBtn").disabled = true;
+      document.getElementById("walletStatus").textContent = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+      document.getElementById("walletStatus").classList.add("wallet-connected");
+      
+      if (selectedCard) document.getElementById("readBtn").disabled = false;
+    } catch (error) {
+      alert("Failed to connect wallet: " + error.message);
+    }
+  } else {
+    alert("Please install MetaMask or another Web3 wallet");
   }
 }
 
@@ -633,6 +678,12 @@ async function getReading() {
   document.getElementById("readingSection").classList.add("visible");
   document.getElementById("resultSymbol").textContent = selectedCard.symbol;
   document.getElementById("resultName").textContent = selectedCard.name.toUpperCase();
+  document.getElementById("readingLoadingContainer").style.display = "block";
+  document.getElementById("readingContent").style.display = "none";
+  document.getElementById("readingActionsContainer").style.display = "none";
+
+  // Scroll to reading section
+  document.getElementById("readingSection").scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const prompt = `You are a mystical Tarot oracle reading for the seeker on the Ritual blockchain. Today they drew: ${selectedCard.name} (${selectedCard.symbol}).
 
@@ -649,22 +700,33 @@ Remember: Every card is interpreted in its most positive, empowering light.`;
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "x-api-key": "sk-ant-your-api-key-here" // Replace with your actual API key
+      },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 300,
         messages: [{ role: "user", content: prompt }]
       })
     });
+
+    if (!res.ok) {
+      throw new Error(`API Error: ${res.status}`);
+    }
+
     const data = await res.json();
     const reading = data.content?.[0]?.text || "The oracle speaks in silence...";
     
     document.getElementById("readingLoadingContainer").style.display = "none";
-    document.getElementById("readingContent").style.display = "block";
     document.getElementById("readingContent").textContent = reading;
-  } catch(e) {
     document.getElementById("readingContent").style.display = "block";
-    document.getElementById("readingContent").textContent = "The oracle is meditating. Try again in a moment.";
+    document.getElementById("readingActionsContainer").style.display = "flex";
+  } catch(e) {
+    console.error("Error:", e);
+    document.getElementById("readingLoadingContainer").style.display = "none";
+    document.getElementById("readingContent").textContent = `The oracle is meditating. Please check your API key and try again. Error: ${e.message}`;
+    document.getElementById("readingContent").style.display = "block";
   }
 }
 
@@ -673,21 +735,32 @@ function mintReading() {
     alert("Please connect your wallet first");
     return;
   }
-  alert(`Minting "${selectedCard.name}" reading as NFT to ${walletAddress}...`);
-  // Actual minting logic would go here
+  
+  const reading = document.getElementById("readingContent").textContent;
+  
+  alert(`✦ Minting "${selectedCard.name}" reading as NFT to ${walletAddress}...\n\nThis would mint the reading to the Ritual blockchain.\n\nFor production, integrate with contract: 0x...`);
+  
+  // In production, this would:
+  // 1. Call smart contract mintReading() function
+  // 2. Send transaction with reading data
+  // 3. Wait for confirmation
+  // 4. Show NFT link
 }
 
 function shareReading() {
-  const text = `I just received an oracle reading from Ritual Tarot: ${selectedCard.name} ✦ Powered by Ritual Network AI oracle.`;
+  const reading = document.getElementById("readingContent").textContent;
+  const text = `I just received an oracle reading from Ritual Tarot:\n\n"${selectedCard.name}"\n\n"${reading}"\n\n✦ Powered by Ritual Network AI Oracle`;
+  
   if (navigator.share) {
-    navigator.share({ title: "Ritual Tarot", text });
+    navigator.share({ 
+      title: "Ritual Tarot Oracle", 
+      text: text
+    });
   } else {
-    alert(text);
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(text);
+    alert("Reading copied to clipboard!");
   }
-}
-
-function toggleTheme() {
-  alert("Theme toggle coming soon");
 }
 
 // Initialize on load
