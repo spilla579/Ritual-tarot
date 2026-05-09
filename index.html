@@ -863,6 +863,12 @@ async function mintReading() {
     return;
   }
 
+  // Check if ethers is loaded
+  if (typeof ethers === 'undefined') {
+    alert("Ethers.js library is not loaded. Please refresh the page.");
+    return;
+  }
+
   const reading = document.getElementById("readingContent").textContent;
   const cardIndex = MAJOR_ARCANA.indexOf(selectedCard);
   const cardName = selectedCard.name;
@@ -877,6 +883,11 @@ async function mintReading() {
     const RITUAL_CHAIN_ID = 1002;
     const RITUAL_RPC = "https://testnet.ritualnet.io/rpc";
     const contractAddress = "0x..."; // REPLACE WITH YOUR CONTRACT ADDRESS
+    
+    // Check if contract address is set
+    if (contractAddress === "0x..." || !contractAddress.startsWith("0x")) {
+      throw new Error("CONTRACT_ADDRESS not properly set. Please update it with your deployed contract address.");
+    }
     
     // Smart Contract ABI for mintReading function
     const contractABI = [
@@ -961,17 +972,19 @@ async function mintReading() {
     
     let errorMessage = error.message;
     
-    if (error.code === 'UNPREDICTABLE_GAS_LIMIT') {
+    if (error.message.includes("is not defined")) {
+      errorMessage = "Library not loaded. Please refresh the page.";
+    } else if (error.code === 'UNPREDICTABLE_GAS_LIMIT') {
       errorMessage = "Contract may not be deployed or function parameters are incorrect.";
     } else if (error.message.includes("revert")) {
       errorMessage = "Transaction reverted. You may have already minted a reading.";
     } else if (error.code === 4001) {
       errorMessage = "Transaction rejected by user.";
-    } else if (error.message.includes("0x...")) {
-      errorMessage = "Contract address not set. Please update CONTRACT_ADDRESS in the code.";
+    } else if (error.message.includes("CONTRACT_ADDRESS")) {
+      errorMessage = "Contract address not set. Please update CONTRACT_ADDRESS in the code with your deployed contract.";
     }
     
-    alert(`❌ Mint Failed\n\n${errorMessage}\n\nTips:\n1. Ensure you're on Ritual Testnet (Chain ID 1002)\n2. Contract address must be set\n3. You can only mint once per wallet`);
+    alert(`❌ Mint Failed\n\n${errorMessage}\n\nTips:\n1. Ensure you're on Ritual Testnet (Chain ID 1002)\n2. Contract address must be set\n3. Refresh page if libraries not loading\n4. You can only mint once per wallet`);
     
     const btn = event.target;
     btn.disabled = false;
