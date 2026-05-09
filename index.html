@@ -314,25 +314,15 @@
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x13F1' }]
-      });
-
-    } catch (switchError) {
-
-      try {
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [
-            {
-              chainId: '0x13F1',
+        params: [{ chainId: '0x7BB',
               chainName: 'Ritual Testnet',
               nativeCurrency: {
                 name: 'RITUAL',
-                symbol: 'RIT',
+                symbol: 'RITUAL',
                 decimals: 18
               },
-              rpcUrls: ['https://testnet.rpc.ritual.net'],
-              blockExplorerUrls: ['https://testnet.explorer.ritual.net']
+              rpcUrls: ['https://rpc.ritualfoundation.org'],
+              blockExplorerUrls: ['https://explorer.ritualfoundation.org']
             }
           ]
         });
