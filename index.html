@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ritual Tarot — On-Chain Oracle Reading</title>
-  <script src="https://cdn.ethers.io/lib/ethers-5.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Space+Mono&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -625,6 +625,27 @@ let selectedCard = null;
 let walletConnected = false;
 let walletAddress = null;
 
+// Wait for ethers to be available
+function waitForEthers() {
+  return new Promise((resolve) => {
+    if (typeof ethers !== 'undefined') {
+      resolve();
+    } else {
+      const checkInterval = setInterval(() => {
+        if (typeof ethers !== 'undefined') {
+          clearInterval(checkInterval);
+          resolve();
+        }
+      }, 100);
+      // Timeout after 5 seconds
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        resolve();
+      }, 5000);
+    }
+  });
+}
+
 // Initialize cards grid
 function initCards() {
   const grid = document.getElementById("cardsGrid");
@@ -863,9 +884,12 @@ async function mintReading() {
     return;
   }
 
-  // Check if ethers is loaded
+  // Wait for ethers library to be available
+  await waitForEthers();
+
+  // Double-check ethers is loaded
   if (typeof ethers === 'undefined') {
-    alert("Ethers.js library is not loaded. Please refresh the page.");
+    alert("Ethers.js library failed to load. Please refresh the page and try again.");
     return;
   }
 
