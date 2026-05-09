@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ritual Tarot — On-Chain Oracle Reading</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Space+Mono&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -672,6 +669,32 @@ async function connectWallet() {
   }
 }
 
+// Demo oracle readings (works without API key)
+const ORACLE_READINGS = {
+  "The Fool": "You stand at the threshold of a magnificent new beginning. The universe is calling you forward with boundless potential and divine timing. Trust in your journey, for this card whispers that adventure and awakening await those brave enough to take the first step.",
+  "The Magician": "Your power to manifest is at its peak. With will, intention, and focused energy, you align the seen and unseen to create your reality. This reading confirms you possess all the tools needed—now is the time to act with confidence and purpose.",
+  "High Priestess": "Deep intuition and hidden wisdom flow through you now. Listen to the quiet voice within, for it carries messages from your highest self. Trust the knowing that transcends logic; your inner sight is your greatest guide.",
+  "The Empress": "Abundance, creativity, and nurturing energy surround you. You are in a season of growth, fertility, and manifestation. Allow yourself to receive blessings in all forms—financial, emotional, and spiritual prosperity is ripening.",
+  "The Emperor": "Leadership, stability, and mastery are your gifts now. You are supported by clarity, structure, and inner authority. Trust your vision and move forward with decisive action; you have the wisdom and power to build something lasting.",
+  "The Hierophant": "Divine wisdom and sacred guidance illuminate your path. You are connected to timeless truths and spiritual mentorship. Seek and share knowledge with reverence; your voice carries healing and enlightenment for others.",
+  "The Lovers": "Deep alignment, genuine connection, and authentic choice bless this moment. Whether in love, partnership, or self-union, harmony flows. Your heart is guided toward unity that mirrors your soul's highest calling.",
+  "The Chariot": "Victory is your momentum. With determination, focus, and willpower, you are moving swiftly toward your goals. This card promises success through bold action and unwavering belief in yourself.",
+  "Strength": "Quiet power and gentle courage are your strengths. You have the resilience to overcome any challenge through patience and inner fortitude. Your gentle confidence will carry you through to triumph.",
+  "The Hermit": "Inner illumination guides your way. Seek wisdom in solitude and reflection; your inner light grows brighter. Trust the process of self-discovery; answers you seek are found within.",
+  "Wheel of Fortune": "Destiny smiles upon you. The wheel turns in your favor, bringing lucky cycles and auspicious timing. Blessings flow naturally; ride this wave of good fortune with gratitude.",
+  "Justice": "Truth prevails and clarity reigns. You are supported by fairness, accountability, and right action. What is aligned with your highest good manifests; karma works in your favor.",
+  "The Hanged Man": "A sacred shift in perspective brings liberation. By surrendering old patterns, you gain profound wisdom. This pause is purposeful—new vision and enlightenment emerge from this surrender.",
+  "Death": "Powerful transformation and renewal bless your journey. Old chapters close beautifully, making space for rebirth. You are being reborn into a higher version of yourself.",
+  "Temperance": "Balance, harmony, and perfect flow are yours. Your life aligns as opposing forces dance in sacred unity. Inner peace and purpose merge seamlessly.",
+  "The Devil": "You are breaking free from limiting beliefs. Recognition of illusion brings liberation. Your awareness is the key to complete freedom and authentic power.",
+  "The Tower": "Breakthrough and breakthrough illumination arrive. What appears to shift is clearing space for your true foundation. From this clearing emerges authentic and unshakeable reality.",
+  "The Star": "Hope, inspiration, and divine guidance flood your being. You are guided by brilliance and cosmic blessing. Your dreams are blessed; follow your light with faith.",
+  "The Moon": "Intuition and imagination open doorways. Trust your dreams and inner visions. Magic flows through you—use it to create beauty and manifest miracles.",
+  "The Sun": "Pure joy, radiant success, and glorious light shine upon you. Everything you touch prospers. Celebration and triumph are your birthright now.",
+  "Judgement": "Awakening, resurrection, and higher calling activate within you. You are called to step into your true purpose. This is your moment of profound rebirth.",
+  "The World": "Completion, wholeness, and fulfillment are yours. You have arrived at a magnificent milestone. Celebrate—your journey has brought you home to yourself."
+};
+
 async function getReading() {
   if (!walletConnected || !selectedCard) return;
 
@@ -685,49 +708,15 @@ async function getReading() {
   // Scroll to reading section
   document.getElementById("readingSection").scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  const prompt = `You are a mystical Tarot oracle reading for the seeker on the Ritual blockchain. Today they drew: ${selectedCard.name} (${selectedCard.symbol}).
-
-Write a SINGLE, SHORT oracle reading (exactly 3-4 sentences) that is:
-- Profoundly hopeful and uplifting
-- Mystical and poetic but grounded
-- Speaks directly to their strength and destiny ahead
-- Emphasizes blessings, growth, and bright possibilities
-
-DO NOT include any headers, numbers, or structure markers. Just pure flowing insight.
-
-Remember: Every card is interpreted in its most positive, empowering light.`;
-
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "x-api-key": "sk-ant-your-api-key-here" // Replace with your actual API key
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 300,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-
-    if (!res.ok) {
-      throw new Error(`API Error: ${res.status}`);
-    }
-
-    const data = await res.json();
-    const reading = data.content?.[0]?.text || "The oracle speaks in silence...";
+  // Simulate oracle channeling with delay
+  setTimeout(() => {
+    const reading = ORACLE_READINGS[selectedCard.name] || "The oracle speaks in whispers of light and wisdom...";
     
     document.getElementById("readingLoadingContainer").style.display = "none";
     document.getElementById("readingContent").textContent = reading;
     document.getElementById("readingContent").style.display = "block";
     document.getElementById("readingActionsContainer").style.display = "flex";
-  } catch(e) {
-    console.error("Error:", e);
-    document.getElementById("readingLoadingContainer").style.display = "none";
-    document.getElementById("readingContent").textContent = `The oracle is meditating. Please check your API key and try again. Error: ${e.message}`;
-    document.getElementById("readingContent").style.display = "block";
-  }
+  }, 2000); // 2 second delay for mystical effect
 }
 
 function mintReading() {
