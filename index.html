@@ -904,8 +904,8 @@ async function mintReading() {
     btn.textContent = "Minting...";
 
     // Ritual Testnet Configuration
-    const RITUAL_CHAIN_ID = 1002;
-    const RITUAL_RPC = "https://testnet.ritualnet.io/rpc";
+    const RITUAL_CHAIN_ID = 1979; // Ritual Testnet Chain ID
+    const RITUAL_RPC = "https://rpc.ritualfoundation.org";
     const contractAddress = "0x..."; // REPLACE WITH YOUR CONTRACT ADDRESS
     
     // Check if contract address is set
@@ -949,10 +949,10 @@ async function mintReading() {
               chainId: '0x' + RITUAL_CHAIN_ID.toString(16),
               chainName: 'Ritual Testnet',
               rpcUrls: [RITUAL_RPC],
-              blockExplorerUrls: ['https://testnet-scan.ritualnet.io'],
+              blockExplorerUrls: ['https://explorer.ritualfoundation.org'],
               nativeCurrency: {
-                name: 'RIT',
-                symbol: 'RIT',
+                name: 'RITUAL',
+                symbol: 'RITUAL',
                 decimals: 18,
               },
             }],
@@ -982,8 +982,8 @@ async function mintReading() {
     
     if (receipt.status === 1) {
       // Success
-      const txLink = `https://testnet-scan.ritualnet.io/tx/${tx.hash}`;
-      alert(`✓ NFT Minted Successfully!\n\nTransaction: ${tx.hash}\n\nCard: ${cardName}\n\nView on Ritual Scan:\n${txLink}`);
+      const txLink = `https://explorer.ritualfoundation.org/tx/${tx.hash}`;
+      alert(`✓ NFT Minted Successfully!\n\nTransaction: ${tx.hash}\n\nCard: ${cardName}\n\nView on Ritual Explorer:\n${txLink}`);
     } else {
       alert(`⚠️ Transaction failed. Hash: ${tx.hash}`);
     }
