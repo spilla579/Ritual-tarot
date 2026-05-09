@@ -1,104 +1,422 @@
 <!DOCTYPE html>
-    .intro-cards {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ritual Tarot</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.1/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .sample-card {
-      aspect-ratio: 3/4;
-      border: 1px solid var(--gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 50px;
-      background: rgba(255,255,255,0.03);
-      transition: 0.3s;
-    }
-
-    .sample-card:hover {
-      transform: scale(1.05);
-    }
-
-    .section-title {
-      font-size: 34px;
-      margin-bottom: 10px;
-      font-family: 'Playfair Display', serif;
-    }
-
-    .section-sub {
-      color: var(--text);
-      margin-bottom: 40px;
-      font-style: italic;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 18px;
-      margin-bottom: 40px;
-    }
-
-    .card-btn {
-      background: #fafafa;
-      color: #000;
-      border: 2px solid #ddd;
-      padding: 14px;
-      aspect-ratio: 3/4;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: 0.3s;
-      position: relative;
-    }
-
-    .card-btn:hover {
-      border-color: var(--gold);
-      transform: translateY(-4px);
-      box-shadow: 0 0 20px rgba(212,175,55,0.25);
-    }
-
-    .card-btn.selected {
-      background: var(--gold);
-      color: #000;
-    }
-
-    .card-symbol {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-
-    .card-name {
-      text-align: center;
+    body {
+      background: #050505;
+      color: #f4e9d3;
       font-family: 'Space Mono', monospace;
-      font-size: 11px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at top, rgba(120,0,255,0.18), transparent 35%),
+        radial-gradient(circle at bottom, rgba(0,120,255,0.12), transparent 30%);
     }
 
-    .read-btn {
-      background: var(--gold);
-      color: #000;
-      padding: 16px 40px;
-      font-weight: bold;
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: auto;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .title {
+      font-family: 'Cinzel', serif;
+      font-size: 4rem;
+      letter-spacing: 5px;
+      margin-bottom: 12px;
+      text-shadow: 0 0 20px rgba(174, 0, 255, 0.8);
+    }
+
+    .subtitle {
+      opacity: 0.7;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .wallet-box {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 35px;
+    }
+
+    button {
+      background: #12061f;
+      color: #f4e9d3;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 14px 24px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      transition: 0.25s ease;
+    }
+
+    button:hover {
+      transform: scale(1.04);
+      background: #2b0d42;
+      box-shadow: 0 0 24px rgba(132,0,255,0.35);
+    }
+
+    .card-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .card {
+      width: 340px;
+      min-height: 540px;
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      background:
+        linear-gradient(145deg,#13061d,#1b0c2e,#050505);
+      border: 2px solid rgba(255,255,255,0.1);
+      box-shadow:
+        0 0 40px rgba(132,0,255,0.22),
+        inset 0 0 50px rgba(255,255,255,0.03);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.04), transparent 65%);
+      pointer-events: none;
+    }
+
+    .symbol {
+      font-size: 82px;
+      margin-top: 10px;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+
+    .card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      margin-top: 18px;
       letter-spacing: 2px;
-      text-transform: uppercase;
     }
 
-    .read-btn:disabled {
+    .divider {
+      width: 80%;
+      height: 1px;
+      margin: 20px auto;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.5), transparent);
+    }
+
+    .meaning {
+      line-height: 1.8;
+      font-size: 14px;
+      opacity: 0.92;
+      padding: 0 10px;
+    }
+
+    .ritual-mark {
+      margin-top: 28px;
       opacity: 0.4;
-      cursor: not-allowed;
+      font-size: 12px;
+      letter-spacing: 2px;
     }
 
-    .reading-section {
-      display: none;
-      margin-top: 60px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      padding: 40px;
+    .actions {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .reading-section.visible {
-      display: grid;
-      grid-template-columns: 300px 1fr;
-  'High Prieste
+    .status {
+      margin-top: 20px;
+      opacity: 0.7;
+      font-size: 13px;
+    }
+
+    .glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: -1;
+      opacity: 0.2;
+      animation: float 8s infinite alternate ease-in-out;
+    }
+
+    .g1 {
+      top: -100px;
+      left: -100px;
+      background: #8a2cff;
+    }
+
+    .g2 {
+      bottom: -100px;
+      right: -100px;
+      background: #00a2ff;
+    }
+
+    @keyframes float {
+      from {
+        transform: translateY(0px);
+      }
+      to {
+        transform: translateY(40px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2.5rem;
+      }
+
+      .card {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="glow g1"></div>
+<div class="glow g2"></div>
+
+<div class="container">
+
+  <h1 class="title">RITUAL TAROT</h1>
+  <p class="subtitle">THE ORACLE SPEAKS THROUGH THE CHAIN</p>
+
+  <div class="wallet-box">
+    <button onclick="connectWallet()">Connect Wallet</button>
+    <button onclick="switchToRitual()">Switch Ritual Network</button>
+  </div>
+
+  <div id="walletAddress" class="status">
+    Wallet not connected.
+  </div>
+
+  <div class="card-wrapper">
+
+    <div class="card" id="tarotCard">
+
+      <div class="symbol" id="symbol">⛧</div>
+
+      <div class="card-title" id="cardName">
+        The Validator
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="meaning" id="meaning">
+        You seek truth within the chain. The watchers observe your every transaction.
+      </div>
+
+      <div class="ritual-mark">
+        RITUAL NETWORK ∞ ARCANE DIVINATION
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button onclick="drawCard()">Draw Card</button>
+    <button onclick="mintCard()">Mint Ritual Card</button>
+    <button onclick="downloadCard()">Download Card</button>
+  </div>
+
+  <div id="txStatus" class="status"></div>
+
+</div>
+
+<script>
+
+  const cards = [
+    {
+      name: 'The Validator',
+      symbol: '⛧',
+      meaning: 'Truth emerges from hidden blocks. A forgotten transaction will alter your path.'
+    },
+    {
+      name: 'The Summoner',
+      symbol: '☽',
+      meaning: 'The Infernet answers your invocation. Chaos brings new alliances.'
+    },
+    {
+      name: 'The Infinite Node',
+      symbol: '✶',
+      meaning: 'You stand between worlds. Endless possibilities surround your destiny.'
+    },
+    {
+      name: 'The Broken Oracle',
+      symbol: '⚚',
+      meaning: 'Visions arrive fragmented. Trust instinct over certainty.'
+    },
+    {
+      name: 'The Hollow Builder',
+      symbol: '☠',
+      meaning: 'You create in silence while unseen forces prepare your ascension.'
+    },
+    {
+      name: 'The Gas Prophet',
+      symbol: '☉',
+      meaning: 'Patience is demanded by the chain. Reckless movement invites ruin.'
+    },
+    {
+      name: 'The Siggy Beast',
+      symbol: '♆',
+      meaning: 'Absurdity hides ancient power. The meme spirit protects your future.'
+    }
+  ];
+
+  let signer;
+  let userAddress;
+
+  async function connectWallet() {
+    if (!window.ethereum) {
+      alert('Please install MetaMask');
+      return;
+    }
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+
+    await provider.send('eth_requestAccounts', []);
+
+    signer = await provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    document.getElementById('walletAddress').innerText =
+      `Connected: ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+  }
+
+  async function switchToRitual() {
+    if (!window.ethereum) return;
+
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x13F1' }]
+      });
+
+    } catch (switchError) {
+
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: '0x13F1',
+              chainName: 'Ritual Testnet',
+              nativeCurrency: {
+                name: 'RITUAL',
+                symbol: 'RIT',
+                decimals: 18
+              },
+              rpcUrls: ['https://testnet.rpc.ritual.net'],
+              blockExplorerUrls: ['https://testnet.explorer.ritual.net']
+            }
+          ]
+        });
+      } catch (err) {
+        console.error(err);
+        alert('Failed to add Ritual network');
+      }
+    }
+  }
+
+  function drawCard() {
+    const random = cards[Math.floor(Math.random() * cards.length)];
+
+    document.getElementById('symbol').innerText = random.symbol;
+    document.getElementById('cardName').innerText = random.name;
+    document.getElementById('meaning').innerText = random.meaning;
+  }
+
+  async function downloadCard() {
+    const card = document.getElementById('tarotCard');
+
+    const canvas = await html2canvas(card, {
+      backgroundColor: null,
+      scale: 2
+    });
+
+    const image = canvas.toDataURL('image/png');
+
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = 'ritual-tarot-card.png';
+    link.click();
+  }
+
+  async function mintCard() {
+
+    if (!signer) {
+      alert('Connect wallet first');
+      return;
+    }
+
+    try {
+
+      document.getElementById('txStatus').innerText = 'Preparing ritual...';
+
+      const card = document.getElementById('tarotCard');
+
+      const canvas = await html2canvas(card, {
+        backgroundColor: null,
+        scale: 2
+      });
+
+      const imageData = canvas.toDataURL('image/png');
+
+      console.log('Generated image:', imageData);
+
+      // DEMO TX
+      // sends 0 ETH to yourself as proof transaction
+      // later you can replace with NFT mint contract
+
+      const tx = await signer.sendTransaction({
+        to: userAddress,
+        value: ethers.parseEther('0')
+      });
+
+      document.getElementById('txStatus').innerText =
+        `Oracle transaction sent: ${tx.hash}`;
+
+      await tx.wait();
+
+      document.getElementById('txStatus').innerText =
+        `Card sealed on Ritual chain. TX: ${tx.hash}`;
+
+      // OPTIONAL:
+      // upload imageData to IPFS
+      // mint NFT with metadata
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('txStatus').innerText = 'Ritual failed.';
+    }
+  }
+
+</script>
+
+</body>
+</html>
